@@ -56,12 +56,19 @@ class UserHandler {
     }
 
     /**
-     * Saves new user
+     * Saves new user encrypting his password
      * @param user 
      */
     @POST
-    async store(user: User): Promise<{}> {
+    async store(data: any): Promise<{}> {
         const userRepository = getConnection().getRepository(User)
+
+        const user: User = new User();
+        user.firstName = data.firstName;
+        user.lastName = data.lastName;
+        user.email = data.email;
+        user.password = Buffer.from(data.password).toString('base64');
+
         await userRepository.save(user);
         return resOK({
             message: 'saved successfully'

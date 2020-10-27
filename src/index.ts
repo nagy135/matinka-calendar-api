@@ -35,6 +35,12 @@ createConnection({
         port = 4000;
     }
 
+    app.use(function (err: any, req: any, res: any, next: any) {
+      res.status(err.statusCode).send({
+          error: err.name
+      })
+    })
+
     app.listen(port, "0.0.0.0", () => {
         console.log(`Server started at port: ${port}`);
     });

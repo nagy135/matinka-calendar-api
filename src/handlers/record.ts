@@ -1,4 +1,4 @@
-import {Path, GET, POST, DELETE, PathParam} from "typescript-rest";
+import {Path, GET, POST, DELETE, PathParam, QueryParam} from "typescript-rest";
 import {resOK, resNOK} from "../helpers";
 import {getConnection} from "typeorm";
 import { Record } from "../entity/Record";
@@ -20,6 +20,27 @@ class RecordHandler {
         return resOK({
             count
         })
+    }
+
+    /**
+     * gets record by its date attribute
+     */
+    @Path('/find-by-date')
+    @GET
+    async findByDate(@QueryParam('date') date: string): Promise<{}> {
+        const recordRepository = getConnection().getRepository(Record)
+        const record = await recordRepository.findOne({
+            where: {
+                date
+            }
+        });
+        if (record)
+            return resOK({
+                record
+            });
+        else
+            return resNOK('record not found');
+
     }
     
     /**
