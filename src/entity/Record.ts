@@ -18,4 +18,7 @@ export class Record {
     @Column('text')
     description!: string;
 
+    @Column({default: 0})
+    attendants!: number;
+
 }

@@ -1,7 +1,12 @@
-import {Path, GET, POST, DELETE, PathParam, QueryParam} from "typescript-rest";
+import {Path, GET, POST, DELETE, PATCH, PathParam, QueryParam} from "typescript-rest";
 import {resOK, resNOK} from "../helpers";
 import {getConnection} from "typeorm";
 import { Record } from "../entity/Record";
+
+type TAttendant = {
+    firstName: string,
+    lastName: string
+};
 
 /**
  * REST handler for Record entity
@@ -107,6 +112,36 @@ class RecordHandler {
         recordRepository.delete(record);
         return resOK({
             message: "Record deleted successfully"
+        })
+    }
+
+    /**
+     * Updates record
+     * @param recordId
+     */
+    @Path('/:recordId/attend')
+    @PATCH
+    async update(
+        @PathParam('recordId') recordId: number,
+        data: TAttendant
+    ): Promise<{}>{
+        const {
+            firstName, 
+            lastName
+        } = data;
+
+        console.log(firstName, lastName);
+
+        const recordRepository = getConnection().getRepository(Record)
+        const record = await recordRepository.findOne(recordId);
+        if (!record)
+            return resNOK(
+                "Record not found"
+            )
+        record.attendants += 1;
+        recordRepository.update(record.id, record);
+        return resOK({
+            message: "Record patched successfully"
         })
     }
 }
