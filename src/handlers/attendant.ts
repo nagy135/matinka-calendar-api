@@ -2,24 +2,40 @@ import {Path, GET, POST, DELETE, PathParam} from "typescript-rest";
 import {resOK, resNOK} from "../helpers";
 import {getConnection} from "typeorm";
 import { User } from "../entity/User";
+import { Record } from "../entity/Record";
+import { Attendant } from "../entity/Attendant";
 
 /**
  * REST handler for User entity
  */
-@Path('/users')
-class UserHandler {
+@Path('/attendants')
+class AttendantHandler {
 
     /**
-     * counts number of users
+     * counts number of attendants of record
      */
-    @Path('/count')
+    @Path('/:recordId/count')
     @GET
-    async count(): Promise<{}> {
-        const userRepository = getConnection().getRepository(User)
-        const count = await userRepository.count();
-        return resOK({
-            count
-        })
+    async count(
+        @PathParam('recordId') recordId: number
+    ): Promise<{}> {
+        const recordRepository = getConnection().getRepository(Record)
+        const record: Record | undefined = await recordRepository.findOne({
+            id: recordId
+        });
+        if (record){
+            const attendantRepository = getConnection().getRepository(Attendant)
+            const [attendants, attendantCount]: [Attendant[], number] = await attendantRepository.findAndCount({
+                recordId: record.id
+            });
+            console.log(attendants);
+            return resOK({
+                attendantCount
+            });
+        } else
+            return resNOK(
+                "Record not found"
+            );
     }
     
     /**
