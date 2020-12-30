@@ -24,14 +24,19 @@ class AttendantHandler {
             id: recordId
         });
         if (record){
+            try {
             const attendantRepository = getConnection().getRepository(Attendant)
             const [attendants, attendantCount]: [Attendant[], number] = await attendantRepository.findAndCount({
                 recordId: record.id
             });
-            console.log(attendants);
             return resOK({
                 attendantCount
             });
+            } catch(e){
+            return resNOK(
+                "Record not found"
+            );
+            }
         } else
             return resNOK(
                 "Record not found"
@@ -51,41 +56,39 @@ class AttendantHandler {
     }
 
     /**
-     * Returns specific user by given id
+     * Returns specific attendant by given id
      * @param userId 
      */
-    @Path('/:userId')
+    @Path('/:attendantId')
     @GET
     async get(
-        @PathParam('userId') userId: number
+        @PathParam('attendantId') attendantId: number
     ): Promise<{}> {
-        const userRepository = getConnection().getRepository(User)
-        const user = await userRepository.findOne(userId);
-        if (user)
+        const attendantRepository = getConnection().getRepository(Attendant)
+        const attendant = await attendantRepository.findOne(attendantId);
+        if (attendant)
             return resOK({
-                user
+                attendant
             });
         else
             return resNOK(
-                "User not found"
+                "Attendant not found"
             );
     }
 
     /**
-     * Saves new user encrypting his password
+     * Saves new attendant to a room
      * @param user 
      */
     @POST
     async store(data: any): Promise<{}> {
-        const userRepository = getConnection().getRepository(User)
+        const attendantRepository = getConnection().getRepository(Attendant)
 
-        const user: User = new User();
-        user.firstName = data.firstName;
-        user.lastName = data.lastName;
-        user.email = data.email;
-        user.password = Buffer.from(data.password).toString('base64');
+        const attendant: Attendant = new Attendant();
+        attendant.userId = data.userId;
+        attendant.recordId = data.recordId;
 
-        await userRepository.save(user);
+        await attendantRepository.save(attendant);
         return resOK({
             message: 'saved successfully'
         })

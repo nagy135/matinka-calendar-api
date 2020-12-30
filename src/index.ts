@@ -6,6 +6,7 @@ import {Server} from "typescript-rest";
 import {createConnection} from "typeorm";
 import { User } from "./entity/User";
 import { Record } from "./entity/Record";
+import { Attendant } from "./entity/Attendant";
 
 import './handlers';
 
@@ -18,7 +19,8 @@ createConnection({
     "database": "matinka",
     "entities": [
         User,
-        Record
+        Record,
+        Attendant
     ],
     "logging": true,
     "synchronize": true
