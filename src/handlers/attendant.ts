@@ -39,14 +39,14 @@ class AttendantHandler {
     }
     
     /**
-     * Returns list of all users
+     * Returns list of all attendants
      */
     @GET
     async index(): Promise<{ data: any; }> {
-        const userRepository =  getConnection().getRepository(User)
-        const users = await userRepository.find();
+        const attendantRepository =  getConnection().getRepository(Attendant)
+        const attendants = await attendantRepository.find();
         return resOK({
-            users
+            attendants
         });
     }
 
