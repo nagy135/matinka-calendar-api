@@ -5,11 +5,31 @@ import { User } from "../entity/User";
 import { Record } from "../entity/Record";
 import { Attendant } from "../entity/Attendant";
 
+type TAttendant = {
+    firstName: string,
+    lastName: string,
+    email: string,
+    recordId: number
+};
+
 /**
  * REST handler for User entity
  */
 @Path('/attendants')
 class AttendantHandler {
+
+    /**
+     * counts all attendants
+     */
+    @Path('/count')
+    @GET
+    async countAll(): Promise<{}> {
+        const attendantRepository = getConnection().getRepository(Attendant)
+        const count = await attendantRepository.count();
+        return resOK({
+            count
+        })
+    }
 
     /**
      * counts number of attendants of record
@@ -25,24 +45,24 @@ class AttendantHandler {
         });
         if (record){
             try {
-            const attendantRepository = getConnection().getRepository(Attendant)
-            const [attendants, attendantCount]: [Attendant[], number] = await attendantRepository.findAndCount({
-                recordId: record.id
-            });
-            return resOK({
-                attendantCount
-            });
+                const attendantRepository = getConnection().getRepository(Attendant)
+                const [attendants, attendantCount]: [Attendant[], number] = await attendantRepository.findAndCount({
+                    recordId: record.id
+                });
+                return resOK({
+                    attendantCount
+                });
             } catch(e){
-            return resNOK(
-                "Record not found"
-            );
+                return resNOK(
+                    "Record not found"
+                );
             }
         } else
             return resNOK(
                 "Record not found"
             );
     }
-    
+
     /**
      * Returns list of all attendants
      */
@@ -70,10 +90,10 @@ class AttendantHandler {
             return resOK({
                 attendant
             });
-        else
-            return resNOK(
-                "Attendant not found"
-            );
+            else
+                return resNOK(
+                    "Attendant not found"
+                );
     }
 
     /**
@@ -81,11 +101,13 @@ class AttendantHandler {
      * @param user 
      */
     @POST
-    async store(data: any): Promise<{}> {
+    async store(data: TAttendant): Promise<{}> {
         const attendantRepository = getConnection().getRepository(Attendant)
 
         const attendant: Attendant = new Attendant();
-        attendant.userId = data.userId;
+        attendant.firstName = data.firstName;
+        attendant.lastName = data.lastName;
+        attendant.email = data.email;
         attendant.recordId = data.recordId;
 
         await attendantRepository.save(attendant);
@@ -95,23 +117,23 @@ class AttendantHandler {
     }
 
     /**
-     * Deleted user
+     * Deletes attendant by id
      * @param userId
      */
-    @Path('/:userId')
+    @Path('/:attendantId')
     @DELETE
     async delete(
-        @PathParam('userId') userId: number
+        @PathParam('attendantId') attendantId: number
     ): Promise<{}>{
-        const userRepository = getConnection().getRepository(User)
-        const user = await userRepository.findOne(userId);
-        if (!user)
+        const attendantRepository = getConnection().getRepository(Attendant)
+        const attendant = await attendantRepository.findOne(attendantId);
+        if (!attendant)
             return resNOK(
-                "User not found"
+                "Attendant not found"
             )
-        userRepository.delete(user);
-        return resOK({
-            message: "deleted successfully"
-        })
+            attendantRepository.delete(attendant);
+            return resOK({
+                message: "deleted successfully"
+            })
     }
 }

@@ -1,6 +1,5 @@
-import {Entity, OneToOne, JoinColumn, PrimaryGeneratedColumn} from "typeorm";
+import {Entity, OneToOne, JoinColumn, PrimaryGeneratedColumn, Column} from "typeorm";
 
-import {User} from "./User";
 import {Record} from "./Record";
 
 @Entity()
@@ -9,9 +8,14 @@ export class Attendant {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @OneToOne(() => User)
-    @JoinColumn()
-    userId!: number;
+    @Column()
+    firstName!: string;
+
+    @Column()
+    lastName!: string;
+
+    @Column({ nullable: true })
+    email!: string;
 
     @OneToOne(() => Record)
     @JoinColumn()
