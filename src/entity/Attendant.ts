@@ -19,5 +19,5 @@ export class Attendant {
 
     @OneToOne(() => Record)
     @JoinColumn()
-    recordId!: number;
+    record!: Record;
 }

@@ -114,34 +114,4 @@ class RecordHandler {
             message: "Record deleted successfully"
         })
     }
-
-    /**
-     * Updates record
-     * @param recordId
-     */
-    @Path('/:recordId/attend')
-    @PATCH
-    async update(
-        @PathParam('recordId') recordId: number,
-        data: TAttendant
-    ): Promise<{}>{
-        const {
-            firstName, 
-            lastName
-        } = data;
-
-        console.log(firstName, lastName);
-
-        const recordRepository = getConnection().getRepository(Record)
-        const record = await recordRepository.findOne(recordId);
-        if (!record)
-            return resNOK(
-                "Record not found"
-            )
-        record.attendants += 1;
-        recordRepository.update(record.id, record);
-        return resOK({
-            message: "Record patched successfully"
-        })
-    }
 }
