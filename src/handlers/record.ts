@@ -82,6 +82,32 @@ class RecordHandler {
     }
 
     /**
+     * Returns attendants for record
+     * @param recordId 
+     */
+    @Path('/:recordId/attendants')
+    @GET
+    async attendants(
+        @PathParam('recordId') recordId: number
+    ): Promise<{}> {
+        const recordRepository = getConnection().getRepository(Record)
+        const record = await recordRepository.findOne(
+            recordId,
+            {
+                relations: ["attendants"]
+            }
+        );
+        if (record)
+            return resOK({
+                attendants: record.attendants
+            });
+            else
+                return resNOK(
+                    "Record not found"
+                );
+    }
+
+    /**
      * Saves new record
      * @param record 
      */
@@ -109,9 +135,9 @@ class RecordHandler {
             return resNOK(
                 "Record not found"
             )
-        recordRepository.delete(record);
-        return resOK({
-            message: "Record deleted successfully"
-        })
+            recordRepository.delete(record);
+            return resOK({
+                message: "Record deleted successfully"
+            })
     }
 }

@@ -1,7 +1,6 @@
 import {Path, GET, POST, DELETE, PathParam} from "typescript-rest";
 import {resOK, resNOK} from "../helpers";
 import {getConnection} from "typeorm";
-import { User } from "../entity/User";
 import { Record } from "../entity/Record";
 import { Attendant } from "../entity/Attendant";
 
@@ -47,7 +46,7 @@ class AttendantHandler {
             try {
                 const attendantRepository = getConnection().getRepository(Attendant)
                 const [attendants, attendantCount]: [Attendant[], number] = await attendantRepository.findAndCount({
-                    recordId: record.id
+                    record: record
                 });
                 return resOK({
                     attendantCount
@@ -69,7 +68,7 @@ class AttendantHandler {
     @GET
     async index(): Promise<{ data: any; }> {
         const attendantRepository =  getConnection().getRepository(Attendant)
-        const attendants = await attendantRepository.find();
+        const attendants: Attendant[] | undefined = await attendantRepository.find();
         return resOK({
             attendants
         });
@@ -103,17 +102,24 @@ class AttendantHandler {
     @POST
     async store(data: TAttendant): Promise<{}> {
         const attendantRepository = getConnection().getRepository(Attendant)
+        const recordRepository = getConnection().getRepository(Record)
 
         const attendant: Attendant = new Attendant();
         attendant.firstName = data.firstName;
         attendant.lastName = data.lastName;
         attendant.email = data.email;
-        attendant.recordId = data.recordId;
+        const record = await recordRepository.findOne(data.recordId);
+        if (record){
+            attendant.record = record;
+            await attendantRepository.save(attendant);
+            return resOK({
+                message: 'saved successfully'
+            });
+        } else
+            return resNOK(
+                "Record not found"
+            );
 
-        await attendantRepository.save(attendant);
-        return resOK({
-            message: 'saved successfully'
-        })
     }
 
     /**

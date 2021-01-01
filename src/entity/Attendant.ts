@@ -1,4 +1,4 @@
-import {Entity, OneToOne, JoinColumn, PrimaryGeneratedColumn, Column} from "typeorm";
+import {Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, Column} from "typeorm";
 
 import {Record} from "./Record";
 
@@ -17,7 +17,6 @@ export class Attendant {
     @Column({ nullable: true })
     email!: string;
 
-    @OneToOne(() => Record)
-    @JoinColumn()
+    @ManyToOne(() => Record, record => record.attendants)
     record!: Record;
 }
