@@ -30,6 +30,35 @@ class AttendantHandler {
         })
     }
 
+    @Path('/:recordId/names')
+    @GET
+    async names(
+        @PathParam('recordId') recordId: number
+    ): Promise<{}> {
+        const recordRepository = getConnection().getRepository(Record)
+        const record: Record | undefined = await recordRepository.findOne({
+            id: recordId
+        });
+        if (record){
+            try {
+                const attendantRepository = getConnection().getRepository(Attendant)
+                const attendants: Attendant[] = await attendantRepository.find({
+                    record: record
+                });
+                return resOK({
+                    attendants: attendants.map((e) =>  e.firstName + ' ' + e.lastName.charAt(0) + '.' )
+                });
+            } catch(e){
+                return resNOK(
+                    "Record not found"
+                );
+            }
+        } else
+            return resNOK(
+                "Record not found"
+            );
+    }
+
     /**
      * counts number of attendants of record
      */
