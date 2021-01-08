@@ -57,7 +57,6 @@ class RecordHandler {
             }
         });
 
-        console.log(records);
         return resOK({
             records
         });
