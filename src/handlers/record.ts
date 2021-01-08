@@ -1,12 +1,8 @@
 import {Path, GET, POST, DELETE, PATCH, PathParam, QueryParam} from "typescript-rest";
 import {resOK, resNOK} from "../helpers";
-import {getConnection} from "typeorm";
+import { getConnection, MoreThanOrEqual} from "typeorm";
 import { Record } from "../entity/Record";
-
-type TAttendant = {
-    firstName: string,
-    lastName: string
-};
+import { format } from "date-fns";
 
 /**
  * REST handler for Record entity
@@ -47,14 +43,21 @@ class RecordHandler {
             return resNOK('record not found');
 
     }
-    
+
+
     /**
      * Returns list of all records
      */
     @GET
     async index(): Promise<{ data: any; }> {
         const recordRepository =  getConnection().getRepository(Record)
-        const records = await recordRepository.find();
+        const records = await recordRepository.find({
+            where: {
+                date: MoreThanOrEqual(format(new Date(), 'yyyy-MM-dd'))
+            }
+        });
+
+        console.log(records);
         return resOK({
             records
         });
